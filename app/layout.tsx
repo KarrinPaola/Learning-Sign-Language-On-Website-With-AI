@@ -4,6 +4,8 @@ import "./globals.css";
 import { ClerkProvider, SignedOut, SignIn, SignedIn, SignInButton, UserButton } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
 import { ExitModal } from "@/components/modals/exit-modal";
+import { HeartsModal } from "@/components/modals/hearts-modal";
+import { PractiseModal } from "@/components/modals/practise-modal";
 
 const font = Nunito({
   subsets: ["latin"],
@@ -25,6 +27,8 @@ export default function RootLayout({
         <body>
           <Toaster />
           <ExitModal/>
+          <HeartsModal/>
+          <PractiseModal/>
           {children}
         </body>
       </html>

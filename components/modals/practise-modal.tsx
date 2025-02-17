@@ -15,14 +15,14 @@ import {
 
 import { Button } from "@/components/ui/button"
 
-import { useExitModal } from "@/use/use-exit-modal"
+import { usePractiseModal } from "@/store/use-practise-modal"
 
-export const ExitModal = () => {
-    const router = useRouter();
+export const PractiseModal = () => {
     const [isClient, setIsClient] = useState(false)
-    const { isOpen, close } = useExitModal()
+    const { isOpen, close } = usePractiseModal()
 
     useEffect(() => setIsClient(true), [])
+
 
     if (!isClient) {
         return null
@@ -34,29 +34,23 @@ export const ExitModal = () => {
                 <DialogHeader>
                     <div className="flex items-center w-full justify-center mb-5">
                         <Image
-                            src={"/lingo-sad.svg"}
-                            alt="Duolingo"
-                            height={80}
-                            width={80}
+                            src={"/heart.svg"}
+                            alt="heart"
+                            height={100}
+                            width={100}
                         />
                     </div>
                     <DialogTitle className="text-center font-bold text-2xl">
-                        Wait, don&apos;t go!
+                        Practise lesson
                     </DialogTitle>
                     <DialogDescription className="text-center text-base">
-                        You are about to leave the lesson. Are you sure?
+                        Use practise lesson to regain hearts and points. You cannot loose hearts in practise lesson.
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter className="mb-4">
                     <div className="flex flex-col gap-y-4 w-full">
                         <Button variant="primary" className="w-full" size="lg" onClick={close}>
-                            Keep learning
-                        </Button>
-                        <Button variant="dangerOutline" className="w-full" size="lg" onClick={() => {
-                            close()
-                            router.push("/learn")
-                        }}>
-                            End Session
+                            I understand
                         </Button>
                     </div>
                 </DialogFooter>

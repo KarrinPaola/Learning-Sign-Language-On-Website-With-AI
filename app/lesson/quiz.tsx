@@ -1,6 +1,6 @@
 "use client"
 
-import { challenges } from "@/db/schema";
+import { challenges, lessons } from "@/db/schema";
 import { challengeOptions } from '../../db/schema';
 import { useState, useTransition, startTransition } from 'react';
 import { Header } from "./header";
@@ -10,8 +10,16 @@ import { Footer } from "./footer";
 import { upsertChallengeprogress } from "@/actions/challenge-progress";
 import { toast } from "sonner";
 import { reduceHearts } from "@/actions/user-progress";
+import Image from 'next/image';
+import Confetti from 'react-confetti';
+import { ResultCard } from "./result-card";
+import { useRouter } from "next/navigation";
+import { useWindowSize, useMount } from "react-use";
+import { useHeartsModal } from "@/store/use-hearts-modal";
+import { usePractiseModal } from "@/store/use-practise-modal";
 
 type Props = {
+
     initialLessonId: number;
     initialLessonChallenges: (typeof challenges.$inferSelect & {
         completed: boolean
@@ -29,10 +37,23 @@ export const Quiz = ({
     initialPercentage,
     userSubscription,
 }: Props) => {
-    const [pending, startTransition] = useTransition();
+    const {open: openHeartsModal } = useHeartsModal()
+    const {open: openPractiseModal } = usePractiseModal()
 
+    useMount(() => {
+        if(initialPercentage === 100) {
+            openPractiseModal()
+        }
+    })
+
+    const { width, height } = useWindowSize()
+    const router = useRouter()
+    const [pending, startTransition] = useTransition();
+    const [lessonId, setLessonId] = useState(initialLessonId)
     const [hearts, setHearts] = useState(initialHearts)
-    const [percentage, setPercentage] = useState(initialPercentage)
+    const [percentage, setPercentage] = useState(() => {
+        return initialPercentage === 100 ? 0 : initialPercentage
+    })
     const [challenges] = useState(initialLessonChallenges)
 
     const [activeIndex, setActiveIndex] = useState(() => {
@@ -79,7 +100,7 @@ export const Quiz = ({
                 upsertChallengeprogress(challenge.id)
                     .then((response) => {
                         if (response?.error === "hearts") {
-                            console.error("Missing Hearts")
+                            openHeartsModal()
                             return
                         }
 
@@ -96,24 +117,71 @@ export const Quiz = ({
         } else {
             startTransition(() => {
                 reduceHearts(challenge.id)
-                .then ((response) => {
-                    if(response?.error === "hearts"){
-                        console.error("Missing hearts")
-                        return 
-                    }
+                    .then((response) => {
+                        if (response?.error === "hearts") {
+                            openHeartsModal()
+                            return
+                        }
 
-                    setStatus("wrong")
+                        setStatus("wrong")
 
-                    if(!response?.error){
-                        setHearts((prev) => Math.max(prev-1, 0))
-                    }
-                })
-                .catch(() => toast.error("Something went wrong. Please try again"))
+                        if (!response?.error) {
+                            setHearts((prev) => Math.max(prev - 1, 0))
+                        }
+                    })
+                    .catch(() => toast.error("Something went wrong. Please try again"))
             })
         }
 
     }
 
+    if (!challenge) {
+        return (
+            <>
+                <Confetti
+                    width={width}
+                    height={height}
+                    recycle={false}
+                    numberOfPieces={500}
+                    tweenDuration={10000}
+                />
+                <div className="flex flex-col gap-y-4 lg:gap-y-8 max-w-lg mx-auto text-center items-center justify-center h-full">
+                    <Image
+                        src="/lingo-emotional.svg"
+                        alt="Finish"
+                        className="hidden lg:block"
+                        height={100}
+                        width={100}
+                    />
+                    <Image
+                        src="/lingo-emotional.svg"
+                        alt="Finish"
+                        className="block lg:hidden"
+                        height={50}
+                        width={50}
+                    />
+                    <h1 className="text-lg lg:text-2xl text-center font-bold text-neutral-700">
+                        Great job! <br /> You&apos;ve completed the lesson.
+                    </h1>
+                    <div className="flex items-center gap-x-4 w-full">
+                        <ResultCard
+                            variant="points"
+                            value={challenges.length * 10}
+                        />
+                        <ResultCard
+                            variant="hearts"
+                            value={hearts}
+                        />
+                    </div>
+                </div>
+                <Footer
+                    lessonId={lessonId}
+                    status="completed"
+                    onCheck={() => router.push("/learn")}
+                />
+            </>
+        )
+    }
 
     const title =
         challenge.type === "ASSIST"
