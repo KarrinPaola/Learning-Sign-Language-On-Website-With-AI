@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { lessons } from '../../../db/schema';
 import { NotebookText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 

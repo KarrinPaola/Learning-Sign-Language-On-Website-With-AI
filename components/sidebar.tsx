@@ -20,7 +20,7 @@ export const Sidebar = ({ className }: Props) => {
                     </h1>
                 </div>
             </Link>
-            <div className="flex flex-col gap-wide-2 flex-1">
+            <div className="flex flex-col gap-wide-2 flex-1 ">
                 <SidebarItem label="Learn" href="/learn" iconScr="/learn.svg"/>
                 <SidebarItem label="Leader Board" href="/leaderboard" iconScr="/leaderboard.svg"/>
                 <SidebarItem label="Quests" href="/quests" iconScr="/quests.svg"/>

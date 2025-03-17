@@ -19,6 +19,7 @@ const main = async () => {
         await db.delete(schema.challenges)
         await db.delete(schema.challengeOptions)
         await db.delete(schema.challengeProgress)
+        await db.delete(schema.userSubscription)
 
 
         await db.insert(schema.courses).values([
@@ -101,7 +102,7 @@ const main = async () => {
 
         await db.insert(schema.challengeOptions).values([
             {
-
+                id: 1,
                 challengeId: 1,
                 imageSrc: "/a.svg",
                 correct: true,
@@ -109,7 +110,7 @@ const main = async () => {
                 audioSrc: ""
             },
             {
-
+                id: 2,
                 challengeId: 1,
                 imageSrc: "/b.svg",
                 correct: false,
@@ -117,7 +118,7 @@ const main = async () => {
                 audioSrc: ""
             },
             {
-
+                id: 3,
                 challengeId: 1,
                 imageSrc: "/c.svg",
                 correct: false,
@@ -128,7 +129,7 @@ const main = async () => {
 
         await db.insert(schema.challengeOptions).values([
             {
-
+                id: 4,
                 challengeId: 2,
                 imageSrc: "/a.svg",
                 correct: false,
@@ -136,7 +137,7 @@ const main = async () => {
                 audioSrc: ""
             },
             {
-
+                id: 5,
                 challengeId: 2,
                 imageSrc: "/b.svg",
                 correct: true,
@@ -144,7 +145,7 @@ const main = async () => {
                 audioSrc: ""
             },
             {
-
+                id: 6,
                 challengeId: 2,
                 imageSrc: "/c.svg",
                 correct: false,
@@ -155,7 +156,7 @@ const main = async () => {
 
         await db.insert(schema.challengeOptions).values([
             {
-
+                id: 7,
                 challengeId: 3,
                 imageSrc: "/a.svg",
                 correct: false,
@@ -163,7 +164,7 @@ const main = async () => {
                 audioSrc: ""
             },
             {
-
+                id: 8,
                 challengeId: 3,
                 imageSrc: "/b.svg",
                 correct: false,
@@ -171,7 +172,7 @@ const main = async () => {
                 audioSrc: ""
             },
             {
-
+                id: 9,
                 challengeId: 3,
                 imageSrc: "/c.svg",
                 correct: true,

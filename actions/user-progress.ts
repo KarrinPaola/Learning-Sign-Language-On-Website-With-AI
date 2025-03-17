@@ -1,13 +1,13 @@
 "use server"
 
 import db from "@/db/drizzle";
-import { getCourseById, getUserProgress } from "@/db/queries";
+import { getCourseById, getUserProgress, getUserSubscription } from "@/db/queries";
 import { challengeProgress, challenges, userProgress } from "@/db/schema";
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { error } from "console";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { POINTS_TO_REFILL } from "@/constrants";
 
 
 export const upsertUserProgress = async (courseId: number) => {
@@ -20,12 +20,10 @@ export const upsertUserProgress = async (courseId: number) => {
     if (!course) {
         throw new Error("Course not found");
     }
-    // TODO: Enable this code when units and lessons are added
-    // if(!course.units.length || !course.units[0].lessons.length){
-    //     throw new Error("Course is empty");
-    // }
 
-
+    if (!course.units.length || !course.units[0].lessons.length) {
+        throw new Error("Course is empty");
+    }
 
     const existingUserProgress = await getUserProgress();
 
@@ -60,13 +58,13 @@ export const reduceHearts = async (challengeId: number) => {
     }
 
     const currentUserProgress = await getUserProgress();
-    //TODO: Get user subscription
+    const userSubscription = await getUserSubscription();
 
     const challenge = await db.query.challenges.findFirst({
-        where : eq(challenges.id, challengeId)
+        where: eq(challenges.id, challengeId)
     })
 
-    if(!challenge){
+    if (!challenge) {
         throw new Error("Challenge not found")
     }
 
@@ -90,7 +88,10 @@ export const reduceHearts = async (challengeId: number) => {
         throw new Error("User progress not found")
     }
 
-    // ToDO: Handle subscription
+    if (userSubscription?.isActive) {
+        return { error: "subscription" }
+    }
+
     if (currentUserProgress.hearts === 0) {
         return { error: "hearts" }
     }
@@ -107,3 +108,25 @@ export const reduceHearts = async (challengeId: number) => {
     revalidatePath(`/lesson/${lessonId}`)
 }
 
+export const refillHearts = async () => {
+    const currentUserProgress = await getUserProgress()
+
+    if (!currentUserProgress) {
+        throw new Error("User progress not found")
+    }
+    if (currentUserProgress.hearts === 5) {
+        throw new Error("Heart are already full.")
+    }
+    if (currentUserProgress.points < POINTS_TO_REFILL) {
+        throw new Error("Not enough points")
+    }
+    await db.update(userProgress).set({
+        hearts: 5,
+        points: currentUserProgress.points - POINTS_TO_REFILL
+    }).where(eq(userProgress.userId, currentUserProgress.userId))
+
+    revalidatePath("/shop")
+    revalidatePath("/learn")
+    revalidatePath("/quests")
+    revalidatePath("/leaderboard")
+}

@@ -1,10 +1,9 @@
 "use server"
 
 import db from "@/db/drizzle";
-import { getUserProgress } from "@/db/queries";
+import { getUserProgress, getUserSubscription } from "@/db/queries";
 import { challengeProgress, challenges, userProgress } from "@/db/schema";
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { error } from "console";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -14,6 +13,7 @@ export const upsertChallengeprogress = async (challengeId: number) => {
     if (!userId) throw new Error("Unauthorized")
 
     const currentUserProgress = await getUserProgress()
+    const userSubscription = await getUserSubscription()
 
     if (!currentUserProgress) {
         throw new Error("User progress not found")
@@ -38,8 +38,7 @@ export const upsertChallengeprogress = async (challengeId: number) => {
 
     const isPractise = !!existingChallengeProgress;
 
-    // Todo : don't need to care if user has a subscription
-    if (currentUserProgress.hearts === 0 && !isPractise) {
+    if (currentUserProgress.hearts === 0 && !isPractise && !userSubscription?.isActive) {
         return { error: "hearts" };
     }
     

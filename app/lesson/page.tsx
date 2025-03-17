@@ -1,5 +1,4 @@
-import { getLesson, getUserProgress } from "@/db/queries"
-import { challengeOptions } from "@/db/schema";
+import { getLesson, getUserProgress, getUserSubscription } from "@/db/queries"
 
 import { redirect } from "next/navigation";
 import { Quiz } from "./quiz";
@@ -7,13 +6,16 @@ import { Quiz } from "./quiz";
 const LessonPage = async () => {
     const lessonData = getLesson()
     const userProgressData = getUserProgress()
+    const userSubscriptionData = getUserSubscription()
 
     const [
         lesson,
-        userProgress
+        userProgress,
+        userSubscription
     ] = await Promise.all([
         lessonData,
-        userProgressData
+        userProgressData,
+        userSubscriptionData
     ])
 
     if (!lesson || !userProgress) {
@@ -31,7 +33,7 @@ const LessonPage = async () => {
             initialLessonChallenges={lesson.challenges}
             initialHearts={userProgress.hearts}
             initialPercentage={initialPercentage}
-            userSubscription={null} //Todo add user subscription
+            userSubscription={userSubscription}
         />
     )
 }

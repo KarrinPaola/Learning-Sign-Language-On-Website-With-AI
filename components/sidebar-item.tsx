@@ -16,11 +16,12 @@ export const SidebarItem = ({
     const pathname = usePathname();
     const active = pathname === href;
     return (
-        <Button
-            variant={active ? "sidebarOutline" : "sidebar"}
-            className="justify-start h-[52px]"
-        >
-            <Link href={href} >
+        <Link href={href} >
+            <Button
+                variant={active ? "sidebarOutline" : "sidebar"}
+                className="justify-start h-[52px] w-full"
+            >
+
                 <Image
                     src={iconScr}
                     alt={label}
@@ -29,8 +30,7 @@ export const SidebarItem = ({
                     width={32}
                 />
                 {label}
-            </Link>
-
-        </Button>
+            </Button>
+        </Link>
     )
 }
